@@ -8,13 +8,15 @@ What would you like to do?
 """
 
 from os import system as cmd
-from os import chdir, path, getcwd, scandir
+from os import chdir, path, makedirs, getcwd, scandir
 import json
 from PIL import Image
+import cv2
 import numpy as np
 import tkinter as tk
 from tkinter import filedialog
-from PIL import Image, ImageDraw
+from shutil import rmtree
+from PIL import Image, ImageOps, ImageDraw
 
 with open("main.js","r") as file:
     BASIC_JS_INDEX = file.read() 
@@ -178,6 +180,38 @@ if __name__ == "__main__":
             with open('www/js/index.js',"w+") as file:
                 file.write(BASIC_JS_INDEX)
 
+
+        makedirs("res/screen/android/")
+        print("Editing and Adding your icons...")
+        #path: [(Resolution, {Coloured, Monochrome, Background, Foreground}, filename)]
+        paths_and_res = {
+        "mipmap-hdpi": [(72,0,"ic_launcher.png")],
+        "mipmap-hdpi-v26": [(72,2,"ic_launcher_background.png"),(72,3,"ic_launcher_foreground.png"),(163,1,"ic_launcher_monochrome.png")],
+        "mipmap-ldpi": [(36,0,"ic_launcher.png")],
+        "mipmap-ldpi-v26": [(36,2,"ic_launcher_background.png"),(36,3,"ic_launcher_foreground.png")],
+        "mipmap-mdpi" : [(48,0,"ic_launcher.png")],
+        "mipmap-mdpi-v26": [(48,2,"ic_launcher_background.png"),(48,3,"ic_launcher_foreground.png"),(108,1,"ic_launcher_monochrome.png")],
+        "mipmap-xhdpi" : [(96,0,"ic_launcher.png")],
+        "mipmap-xhdpi-v26": [(216,2,"ic_launcher_background.png"),(216,3,"ic_launcher_foreground.png"),(216,1,"ic_launcher_monochrome.png")],
+        "mipmap-xxhdpi" : [(144,0,"ic_launcher.png")],
+        "mipmap-xxhdpi-v26": [(324,2,"ic_launcher_background.png"),(324,3,"ic_launcher_foreground.png"),(324,1,"ic_launcher_monochrome.png")],
+        "mipmap-xxxhdpi" : [(192,0,"ic_launcher.png")],
+        "mipmap-xxxhdpi-v26": [(432,2,"ic_launcher_background.png"),(432,3,"ic_launcher_foreground.png"),(432,1,"ic_launcher_monochrome.png")],
+        }
+        base_path = "platforms/android/app/src/main/res/"
+        makedirs("temporary_delete/")
+        
+        if ADD_PADDING:
+            with Image.open(ICON_FILENAME) as image:
+                padding_width = int(image.width / 4)
+                padding_height = int(image.height / 4)
+
+                fill_color = image.getpixel((0, 0))
+
+                padded_image = ImageOps.expand(image, border=(padding_width, padding_height), fill=fill_color)
+                ICON_FILENAME = "temporary_delete/newly_zoomedout.png"
+                padded_image.save(ICON_FILENAME)
+            
         if USE_SMART_STRIP:
             def get_color_diff(color1, color2):
                 return (color1[0] - color2[0])**2 + (color1[1] - color2[1])**2 + (color1[2] - color2[2])**2 + (color1[3] - color2[3])**2
@@ -241,6 +275,58 @@ if __name__ == "__main__":
                         if mask.getpixel((x, y)) != 255:
                             pixel_data[x, y] = our_stuff
                 img.save(f'temporary_delete/background.png')
+
+
+        else:
+            image = cv2.imread(ICON_FILENAME)
+            image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            mask = np.zeros(image.shape[:2], np.uint8)
+            bgdModel = np.zeros((1, 65), np.float64)
+            fgdModel = np.zeros((1, 65), np.float64)
+            rect = (50, 50, image.shape[1] - 100, image.shape[0] - 100)
+            cv2.grabCut(image, mask, rect, bgdModel, fgdModel, 5, cv2.GC_INIT_WITH_RECT)
+            mask2 = np.where((mask == 2) | (mask == 0), 0, 1).astype('uint8')
+            
+            #foreground = image_rgb * mask2[:, :, np.newaxis]
+            foreground_with_alpha = np.zeros((image.shape[0], image.shape[1], 4), dtype=np.uint8)
+            foreground_with_alpha[:, :, :3] = image_rgb * mask2[:, :, np.newaxis]
+            foreground_with_alpha[:, :, 3] = mask2 * 255
+            foreground = foreground_with_alpha
+
+            background = image_rgb * (1 - mask2[:, :, np.newaxis])
+            
+            mask_inpaint = np.where((mask2 == 0), 0, 1).astype('uint8')
+            inpainted_image = cv2.inpaint(background, mask_inpaint, 3, cv2.INPAINT_TELEA)
+            alpha_channel = np.ones((inpainted_image.shape[0], inpainted_image.shape[1]), dtype=np.uint8) * 255
+
+            background = cv2.merge((inpainted_image, alpha_channel))
+
+            cv2.imwrite(f'temporary_delete/foreground.png', cv2.cvtColor(foreground, cv2.COLOR_RGB2BGRA))
+            cv2.imwrite(f'temporary_delete/background.png', cv2.cvtColor(background, cv2.COLOR_RGB2BGRA))
+
+        for folder in paths_and_res.keys():
+            for size,typ,image_name in paths_and_res[folder]:
+                if typ in {0,1}:
+                    with Image.open(ICON_FILENAME) as img:
+                        img_resized = img.resize((size,size))
+                        if typ == 1:#Convert to grayscale for BW
+                            img_resized = img_resized.convert('L')
+                        img_resized.save(f'{base_path}{folder}/{image_name}')
+                                        
+                if typ in {2,3}: # Background or foreground 
+                    with Image.open(f'temporary_delete/{"foreground" if typ == 3 else "background"}.png') as img:
+                        img_resized = img.resize((size,size))
+                        img_resized.save(f'{base_path}{folder}/{image_name}')
+                    
+
+        #densities = ["hdpi","ldpi","mdpi","xhdpi","xxhdpi","xxxhdpi"]
+
+        with Image.open("temporary_delete/foreground.png") as img:
+            img.save(f"res/screen/android/splashscreen.png")
+
+        rmtree("temporary_delete/")
+        print(f"Index file located at {getcwd()}\\www\\index.html")
+
 
 
     
