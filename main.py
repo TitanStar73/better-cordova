@@ -10,9 +10,20 @@ What would you like to do?
 from os import system as cmd
 from os import chdir, path, getcwd, scandir
 import json
+from PIL import Image
+import numpy as np
 import tkinter as tk
 from tkinter import filedialog
-from PIL import Image
+from PIL import Image, ImageDraw
+
+with open("main.js","r") as file:
+    BASIC_JS_INDEX = file.read() 
+
+with open("main.html","r") as file:
+    BASIC_HTML_INDEX = file.read()
+
+with open("main.css","r") as file:
+    BASIC_CSS_INDEX = file.read()
 
 def get_pixel_color(filename):
     with Image.open(filename) as img:
@@ -157,6 +168,80 @@ if __name__ == "__main__":
 
         with open('package.json', 'w') as file:
             json.dump(data, file, indent=4)
+        
+        if indexfile:
+            print("Writing basic index file...")
+            with open('www/index.html',"w+") as file:
+                file.write(BASIC_HTML_INDEX)
+            with open('www/css/index.css',"w+") as file:
+                file.write(BASIC_CSS_INDEX)
+            with open('www/js/index.js',"w+") as file:
+                file.write(BASIC_JS_INDEX)
+
+        if USE_SMART_STRIP:
+            def get_color_diff(color1, color2):
+                return (color1[0] - color2[0])**2 + (color1[1] - color2[1])**2 + (color1[2] - color2[2])**2 + (color1[3] - color2[3])**2
+
+            def generate_coords():
+                start = 2
+                while True:
+                    for y in range(0,start+1):
+                        yield (start-y,y)
+                    start += 1
+
+            with Image.open(ICON_FILENAME) as img_raw:
+                tolerance = ((255 * (5 / 100))**2) * 4 #5 here is tolerance level in %
+                width, height = img_raw.size
+                img = img_raw.convert("RGBA")
+                pixel_data = img.load()
+                mask = Image.new('L', (width, height), 0)
+                draw = ImageDraw.Draw(mask)
+                our_stuff = img.getpixel((0,0))
+                draw.point((0, 0), 255)
+                draw.point((0, 1), 255)
+                draw.point((1, 0), 255)
+                
+                for x,y in generate_coords():
+                    if x >= width and y >= height:
+                        break
+                    for xt, yt in [(x-1,y-1), (x+1,y), (x,y+1), (x+1,y+1), (x-1,y+1), (x+1,y-1), (x-1,y), (x,y-1)]:
+                        try:
+                            if (mask.getpixel((xt,yt)) == 255) and get_color_diff(img.getpixel((0,0)), img.getpixel((x,y))) <= tolerance:
+                                draw.point((x,y), 255)
+                                break
+                        except:
+                            pass
+
+                for xj,yj in generate_coords():
+                    x = width - xj - 1
+                    y = height - yj - 1
+                    if x < 0 and y < 0:
+                        break
+                    for xt, yt in [(x-1,y-1), (x+1,y), (x,y+1), (x+1,y+1), (x-1,y+1), (x+1,y-1), (x-1,y), (x,y-1)]:
+                        try:
+                            if (mask.getpixel((xt,yt)) == 255) and get_color_diff(img.getpixel((0,0)), img.getpixel((x,y))) <= tolerance:
+                                draw.point((x,y), 255)
+                                break
+                        except:
+                            pass
+
+                for x in range(width):
+                    for y in range(height):
+                        if mask.getpixel((x, y)) == 255:
+                            pixel_data[x, y] = (255, 255, 255, 0)
+
+                img.save(f'temporary_delete/foreground.png')
+
+            with Image.open(ICON_FILENAME) as img_raw:
+                width, height = img_raw.size
+                img = img_raw.convert("RGBA")
+                pixel_data = img.load()
+                for x in range(width):
+                    for y in range(height):
+                        if mask.getpixel((x, y)) != 255:
+                            pixel_data[x, y] = our_stuff
+                img.save(f'temporary_delete/background.png')
+
 
     
     if MY_CHOICE == 2:
