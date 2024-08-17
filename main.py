@@ -8,9 +8,17 @@ What would you like to do?
 """
 
 from os import system as cmd
-from os import path, getcwd, scandir
+from os import chdir, path, getcwd, scandir
+import json
 import tkinter as tk
 from tkinter import filedialog
+from PIL import Image
+
+def get_pixel_color(filename):
+    with Image.open(filename) as img:
+        color = img.getpixel((0, 0))
+        hex_color = '#{:02x}{:02x}{:02x}'.format(color[0], color[1], color[2])
+        return hex_color
 
 def browse_file():
     root = tk.Tk()
@@ -87,6 +95,68 @@ if __name__ == "__main__":
                 platforms.append("android")
             if "2" in inp or "ios" in inp.lower():
                 platforms.append("ios")
+        
+        
+        cmd(f"cordova create {PROJ_NAME} com.{DEV_NAME.lower()}.{PROJ_NAME.lower()} {PROJ_NAME}")
+        chdir(f"{PROJ_NAME}")
+        for item in platforms:
+            cmd(f"cordova platform add {item}")
+
+        cmd("cordova plugin add cordova-plugin-android-permissions")
+
+        config_xml = f"""
+        <?xml version='1.0' encoding='utf-8'?>
+        <widget id="com.{DEV_NAME.lower()}.{PROJ_NAME.lower()}" version="{VERSION}" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+            <name>{PROJ_NAME}</name>
+            <description>{DESCREPTION}</description>
+            <author{DEV_EMAIL}{WEBSITE}>
+                {DEV_NAME}
+            </author>
+
+            <content src="index.html" />
+            <allow-intent href="http://*/*" />
+            <allow-intent href="https://*/*" />
+        </widget>
+      """
+        config_xml_root = f"""
+        <?xml version='1.0' encoding='utf-8'?>
+        <widget id="com.{DEV_NAME.lower()}.{PROJ_NAME.lower()}" version="{VERSION}" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:android = "https://schemas.android.com/apk/res/android">
+            <name>{DISPLAY_NAME}</name>
+            <description>{DESCREPTION}</description>
+            <author{DEV_EMAIL}{WEBSITE}>
+                {DEV_NAME}
+            </author>
+
+            <platform name="android">
+                <preference name="AndroidWindowSplashScreenAnimatedIcon" value="res/screen/android/splashscreen.png" />
+                <preference name="AndroidWindowSplashScreenDuration" value="-1" /> <!-- Duration in milliseconds -->
+                <preference name="SplashScreenBackgroundColor" value="{get_pixel_color(ICON_FILENAME).upper()}" /> <!-- Background color -->
+            </platform>
+
+            <content src="index.html" />
+            <allow-intent href="http://*/*" />
+            <allow-intent href="https://*/*" />
+        </widget>
+      """
+
+        with open("config.xml","w+") as file:
+            file.write(config_xml_root)
+        with open("platforms/android/app/src/main/res/xml/config.xml","w+") as file:
+            file.write(config_xml)
+
+        with open('package.json', 'r') as file:
+            data = json.load(file)
+
+        data['name'] = f"com.{DEV_NAME.lower()}.{PROJ_NAME.lower()}"
+        data['displayName'] = DISPLAY_NAME
+        data['version'] = VERSION
+        data['description'] = DESCREPTION
+        data['scripts'] = {}
+        data['author'] = DEV_NAME
+        data['license'] = LICENSE if LICENSE != "" else "Apache-2.0"
+
+        with open('package.json', 'w') as file:
+            json.dump(data, file, indent=4)
 
     
     if MY_CHOICE == 2:
