@@ -132,3 +132,75 @@ body {
   padding-top: 1vh;
   padding-bottom: 1vh;
 }
+
+.main_table {
+	height: var(--size);
+	width: calc(var(--size)*0.8); /* sets a aspect ratio w.r.t height of 4:5*/
+	border-collapse: collapse;
+	text-align: center;
+	border: none; /*Make it visible for easy debug of layout*/
+	background-color: transparent;
+}
+.main_table th, .main_table td, .main_table tr {
+	padding: 0;
+	background-color: transparent;
+}
+
+
+button {
+  align-items: center;
+  appearance: none;
+  background-color: var(--colorHighlight);
+  border: 0;
+  border-radius: calc(var(--size)*0.017);
+  box-shadow: rgba(35, 35, 35, .4) 0 calc(var(--size)*0.01) calc(var(--size)*0.01),rgba(35, 35, 35, .3) 0 calc(var(--size)*0.02) calc(var(--size)*0.03) calc(var(--size)*-0.013),rgba(60, 60, 60, .5) 0 calc(var(--size)*-0.013) 0 inset;
+  box-sizing: border-box;
+  color: var(--colorText);
+  display: inline-flex;
+  height: calc(var(--size)*0.13);
+  justify-content: center;
+  line-height: 1;
+  list-style: none;
+  overflow: hidden;
+  padding-left: calc(var(--size)*0.04);
+  padding-right: calc(var(--size)*0.04);
+  position: relative;
+  text-align: left;
+  text-decoration: none;
+  transition: box-shadow .15s,transform .15s;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  white-space: nowrap;
+  will-change: box-shadow,transform;
+  font-size: calc(var(--size)*0.06);
+}
+
+
+button:active {
+  box-shadow: var(--colorHighlight) 0 calc(var(--size)*0.01) calc(var(--size)*0.02) inset;
+  transform: translateY(calc(var(--size)*0.006));
+}
+
+
+.button2 {
+  font-size: calc(var(--size)*0.04);
+  letter-spacing: calc(var(--size)*0.002);
+  text-decoration: none;
+  text-transform: uppercase;
+  color: #000;
+  border: 3px solid;
+  padding: 0.25em 0.5em;
+  box-shadow: 1px 1px 0px 0px, 2px 2px 0px 0px, 3px 3px 0px 0px, 4px 4px 0px 0px, 5px 5px 0px 0px;
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  outline: none;
+}
+
+.button2:active {
+  box-shadow: 0px 0px 0px 0px;
+  top: 5px;
+  left: 5px;
+}
