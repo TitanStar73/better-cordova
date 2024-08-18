@@ -1,6 +1,87 @@
 /*DISCLAIMER: Although some classes are built by me,
 many are tweaked versions of open source styles and classes collated.*/
 
+/*
+Set adabtable size of stuff with this
+min(x vw,y vw)
+
+E.g.
+font-size: min(30vw,30vw);
+--size:min(90vw,90vh);
+
+Premade classes include:
+Font:
+ -thin
+ -extrabold
+ -italic
+
+Button:
+ -button2
+
+Checkboxes:
+ None included as they have multiple components but a good site is (non-affiliated)
+ https://getcssscan.com/css-checkboxes-examples?ref=beautifulbuttons-bottom
+
+Icons:
+ None included but a good site is (non-affiliated):
+ https://thenounproject.com/
+
+Text:
+ Also works on other stuff but for text you can use
+ <b class="gradient-text">My Text</b>
+
+Msc classes:
+ shadow : creates a shadow
+ glowing : creates a glowing border
+ dark-mode / light-mode : only shows element in that mode
+
+Popup:
+ two divs required, popup-container and popup
+ document.getElementById('elementId').style.display = 'block'/'none'; //to show/hide
+
+Header/Footer classes:
+ header : Good for banners
+ footer : Good for navbars
+
+Weird Problems Solved:
+-Stuff is getting highlighted when clicked:
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  cursor: auto;
+
+-Basic Animations:
+#Create a class with standard stuff
+.banner{
+  width: 100vw;
+}
+#Create a secondary class with only the animation
+.banner-animate{
+  animation: breathing 0.75s ease-out normal;
+}
+#Here is the actual animation defined
+@keyframes breathing {
+0% {
+  transform: scale(1);
+}
+50% {
+  transform: scale(0.94);
+}
+100% {
+  transform: scale(1);
+}
+}
+
+#Here is how to trigger it with js
+function animatebanner(){
+	document.getElementById('banner1').classList.remove('banner-animate'); // reset animation
+	void document.getElementById('banner1').offsetWidth; // trigger reflow
+	document.getElementById('banner1').classList.add('banner-animate'); // start animation
+}
+
+OTHER UI ELEMENTS: https://uiverse.io/ | Great for random elements
+
+*/
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,800;1,400&display=swap');
 
 :root{
@@ -181,6 +262,7 @@ button:active {
   box-shadow: var(--colorHighlight) 0 calc(var(--size)*0.01) calc(var(--size)*0.02) inset;
   transform: translateY(calc(var(--size)*0.006));
 }
+
 
 
 .button2 {
