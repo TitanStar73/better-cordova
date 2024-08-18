@@ -1,1 +1,134 @@
+/*DISCLAIMER: Although some classes are built by me,
+many are tweaked versions of open source styles and classes collated.*/
 
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,800;1,400&display=swap');
+
+:root{
+	--size:min(90vw,90vh);/*size of the table in terms of percentage of viewport, i.e. actual screen dimensions*/
+	--colorBackground: #f0f0f0;
+	--colorText: #333333;
+	--colorHighlight: #4444dd;
+}
+
+.light-mode {
+  display: inline;
+}
+.dark-mode {
+  display: none;
+}
+/*Dark mode settings*/
+@media (prefers-color-scheme: dark) {
+	:root {
+		--colorBackground: #333333;
+		--colorText: #f0f0f0;
+		--colorHighlight: #dd4444;
+	}
+  .dark-mode {
+    display: inline;
+  }
+  .light-mode {
+    display: none;
+  }
+}
+
+.thin{
+	font-weight: 300;
+ }
+  
+.extrabold {
+font-weight: 800;
+}
+
+.italic {
+font-weight: 400;
+font-style: italic;
+}
+
+*{
+	color: var(--colorText);
+	font-family: "Poppins", sans-serif;
+	font-weight: 400;
+	font-style: normal;
+	user-select: none;
+}
+.gradient-text{
+	-webkit-linear-gradient: (135deg, #F56772 20%,#7280FF 80%);
+}
+body {
+	background-color: var(--colorBackground);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+	margin: 0;
+	font-family: Arial, sans-serif;
+}
+/*Change background of app*/
+.app_background{
+  background-image: url("/img/icon3.png"); /*Image file lcoated relative to css file*/
+  background-size: calc(var(--size)*0.4); /*cover = max; but can be any pixel count or anything*/
+  background-repeat: repeat; /*Set to no-repeat OR repeat*/
+  background-position: center;
+}
+
+.popup {
+  position: fixed; /* Keeps the popup in a fixed position on the screen */
+  top: 50%; /* Positions the top edge 50% down from the top */
+  left: 50%; /* Positions the left edge 50% from the left side */
+  transform: translate(-50%, -50%); /* Offsets the element by half its own width and height */
+  z-index: 100000; /* Ensures the popup appears above other elements */
+  background-color: var(--colorBackground); /* Background color of the popup */
+  border-radius: 10px; /* Rounds the corners of the popup */;
+  padding: calc(var(--size)*0.05);
+  width: calc(var(--size)*0.8);
+  height: calc(var(--size)*0.8);
+  display: none;
+}
+
+.popup-container{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px); /* Apply blur effect */
+  z-index: 99999; /* Ensure it appears below the popup but above other content */
+  display: none; /* Initially hidden */
+}
+
+.shadow{
+  box-shadow: calc(var(--size)*0.03) calc(var(--size)*0.03) 0 var(--colorHighlight); /* Adds a shadow effect */
+}
+
+.glowing{
+  box-shadow: 0 0 calc(var(--size)*0.1) var(--colorHighlight); /* Adds a glowy effect */
+}
+
+.footer{
+  background-color: var(--colorHighlight);
+  position: absolute;
+  align-items: center;
+  align-content: center;
+  text-align: center;
+  bottom: 0;
+  width: 92vw;
+  padding-right: 4vw;
+  padding-left: 4vw;
+  padding-top: 1vh;
+  padding-bottom: 1vh;
+}
+
+.header{
+  background-color: var(--colorHighlight);
+  position: absolute;
+  align-items: center;
+  align-content: center;
+  text-align: center;
+  top: 0;
+  width: 92vw;
+  padding-right: 4vw;
+  padding-left: 4vw;
+  padding-top: 1vh;
+  padding-bottom: 1vh;
+}
