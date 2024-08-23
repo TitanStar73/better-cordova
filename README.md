@@ -8,7 +8,7 @@ This tool takes it one step further!
 
 # How to use
 
-Simply run the `better-cordova.py` OR the `better-cordova.exe` in the directory you would like to create a new project in.
+Simply run the `better-cordova.py` OR `better-cordova.exe` in the directory you would like to create a new project in.
 
 This tool will guide you through basic setup, and even provides easy to use basic html and javascript framework along with indepth css classes and guidance websites!
 
