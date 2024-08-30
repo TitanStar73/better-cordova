@@ -6,6 +6,8 @@ Apache Cordova is a tool used to conver HTML/CSS/JS into mobile apps.
 
 This tool takes it one step further!
 
+![image](https://github.com/user-attachments/assets/a81f3f5d-42c0-4d4c-bcf7-d603d1a3f833)
+
 # Installation
 Download the latest binary release OR the better-cordova.py file
 
